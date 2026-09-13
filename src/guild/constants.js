@@ -1,3 +1,5 @@
+import { escapeHtml } from '../utils/escapeHtml.js';
+
 // src/guild/constants.js
 // "Constantes" são valores que NUNCA mudam sozinhos durante o jogo -- são
 // mais como uma tabela de regras fixas (ex: o nome de cada cargo da
@@ -20,3 +22,8 @@ export const GUILDS_DEFAULT = [
   { id:'g2', name:'Sombras Arcanas',emblem:'🌙', desc:'Magos das trevas eternas',  members:['Sistema'], level:3 },
   { id:'g3', name:'Escudo Dourado', emblem:'🛡️', desc:'Defensores do reino',       members:['Sistema'], level:4 },
 ];
+
+export function guildTagHtml(g) {
+  if (!g || !g.tag) return '';
+  return ` <span class="badge badge-gray" style="cursor:pointer" onclick="event.stopPropagation();openGuildProfile('${g.id}')" title="${escapeHtml(g.name)}">【${escapeHtml(g.tag)}】</span>`;
+}
