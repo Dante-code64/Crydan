@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { escapeHtml, safeMediaUrl } from './utils/escapeHtml.js';
 import { timeAgo, formatCry, formatLastSeen, _stripAt } from './utils/format.js';
 import { sleep, rarityColor, createDiceElement, buildLinkHref, hslToHex, uid, fmtTime, initialsOf, normalizeUsernameInput, getGreeting } from './utils/helpers.js';
+import { regGetAudioCtx, regTone, regSoundClick, regSoundStep, regSoundSuccess, regSoundError } from './utils/sound.js';
 import { tttWinner, chessIsWhite, chessIsBlack, botDifficultyBar } from './games/helpers.js';
 import { svgIcon, zoneAt, pvpPower, encounterChanceFor, monsterForDanger } from './rpg/helpers.js';
 import { GUILD_ROLE_LABELS, GUILD_ROLE_RANK, GUILD_PRIVACY_LABELS, GUILD_ACHIEVEMENTS_INFO, GUILD_PAGE_SIZE, GUILDS_DEFAULT, guildTagHtml } from './guild/constants.js';
@@ -1018,43 +1019,6 @@ let regState = {
 };
 
 // ── sons leves (sem biblioteca externa) ──
-let regAudioCtx = null;
-function regGetAudioCtx() {
-  if (!regAudioCtx) {
-    try { regAudioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
-    catch (e) { return null; }
-  }
-  if (regAudioCtx.state === 'suspended') regAudioCtx.resume();
-  return regAudioCtx;
-}
-function regTone(freq, start, dur, vol, type) {
-  const ctx = regGetAudioCtx();
-  if (!ctx) return;
-  const osc = ctx.createOscillator();
-  osc.type = type || 'sine';
-  osc.frequency.value = freq;
-  const gain = ctx.createGain();
-  gain.gain.setValueAtTime(0, start);
-  gain.gain.linearRampToValueAtTime(vol, start + 0.01);
-  gain.gain.exponentialRampToValueAtTime(0.0001, start + dur);
-  osc.connect(gain).connect(ctx.destination);
-  osc.start(start); osc.stop(start + dur);
-}
-function regSoundClick() { const ctx = regGetAudioCtx(); if (ctx) regTone(700, ctx.currentTime, 0.05, 0.06, 'triangle'); }
-function regSoundStep() {
-  const ctx = regGetAudioCtx(); if (!ctx) return;
-  regTone(520, ctx.currentTime, 0.08, 0.05, 'sine');
-  regTone(780, ctx.currentTime + 0.05, 0.1, 0.05, 'sine');
-}
-function regSoundSuccess() {
-  const ctx = regGetAudioCtx(); if (!ctx) return;
-  [523.25, 659.25, 783.99].forEach((f, i) => regTone(f, ctx.currentTime + i * 0.09, 0.35, 0.07, 'triangle'));
-}
-function regSoundError() {
-  const ctx = regGetAudioCtx(); if (!ctx) return;
-  regTone(220, ctx.currentTime, 0.18, 0.07, 'sawtooth');
-  regTone(160, ctx.currentTime + 0.1, 0.22, 0.06, 'sawtooth');
-}
 
 // ── inicialização do wizard (chamada toda vez que a tela de cadastro abre) ──
 function regInit() {
