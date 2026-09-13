@@ -5,7 +5,8 @@ import { timeAgo, formatCry, formatLastSeen, _stripAt } from './utils/format.js'
 import { sleep, rarityColor, createDiceElement, buildLinkHref, hslToHex, uid, fmtTime, initialsOf, normalizeUsernameInput, getGreeting } from './utils/helpers.js';
 import { tttWinner, chessIsWhite, chessIsBlack, botDifficultyBar } from './games/helpers.js';
 import { svgIcon, zoneAt, pvpPower, encounterChanceFor, monsterForDanger } from './rpg/helpers.js';
-import { GUILD_ROLE_LABELS, GUILD_ROLE_RANK, GUILD_PRIVACY_LABELS, GUILD_ACHIEVEMENTS_INFO, GUILD_PAGE_SIZE, GUILDS_DEFAULT } from './guild/constants.js';
+import { GUILD_ROLE_LABELS, GUILD_ROLE_RANK, GUILD_PRIVACY_LABELS, GUILD_ACHIEVEMENTS_INFO, GUILD_PAGE_SIZE, GUILDS_DEFAULT, guildTagHtml } from './guild/constants.js';
+import { groupIconHtml, communityIconHtml, communityIconHtmlBig } from './social/helpers.js';
 import {
   SAVE_KEY, CLASSES, RANKS, SHOP_ITEMS, HOUSES, COMPANIES, JOBS, QUESTS, BOSSES,
   ACHIEVEMENTS, MAP_ZONES, AVATARS, ACCENT_COLORS, BG_PALETTES, FONT_OPTIONS,
@@ -3524,10 +3525,6 @@ let myPendingGuildRequests = []; // guild_ids que eu já solicitei entrada
 let guildRankingSort = 'xp';
 let guildRankingPage = 0;
 
-function guildTagHtml(g) {
-  if (!g || !g.tag) return '';
-  return ` <span class="badge badge-gray" style="cursor:pointer" onclick="event.stopPropagation();openGuildProfile('${g.id}')" title="${escapeHtml(g.name)}">【${escapeHtml(g.tag)}】</span>`;
-}
 
 async function refreshMyGuildMembership() {
   const me = myId();
@@ -7971,20 +7968,6 @@ async function renderChatListCol() {
 // Ícone de grupo/comunidade pode ser um emoji OU (agora) uma foto de
 // verdade enviada pelo admin — o cliente decide como mostrar olhando
 // se o valor parece uma URL/imagem em vez de forçar um formato fixo.
-function groupIconHtml(g) {
-  const icon = g && g.icon;
-  if (icon && (icon.startsWith('http') || icon.startsWith('data:image'))) {
-    return `<img src="${icon}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
-  }
-  return icon || '👥';
-}
-function communityIconHtml(c) {
-  const icon = c && c.icon;
-  if (icon && (icon.startsWith('http') || icon.startsWith('data:image'))) {
-    return `<img src="${icon}" alt="" style="width:20px;height:20px;object-fit:cover;border-radius:50%;vertical-align:middle">`;
-  }
-  return icon || '🏰';
-}
 
 let _communityRoleCache = {};
 async function getCommunityRole(communityId) {
@@ -9325,13 +9308,6 @@ async function openCommunitySettingsModal(communityId) {
     console.error('Erro ao abrir configurações da comunidade', e);
     showModal('Erro', `<div class="empty-state"><div class="empty-sub">Não foi possível carregar as configurações.</div></div>`);
   }
-}
-function communityIconHtmlBig(c) {
-  const icon = c && c.icon;
-  if (icon && (icon.startsWith('http') || icon.startsWith('data:image'))) {
-    return `<img src="${icon}" alt="" style="width:100%;height:100%;object-fit:cover">`;
-  }
-  return icon || '🏰';
 }
 function handleCommunityPhotoSelect(e, communityId) {
   const file = e.target.files && e.target.files[0];
